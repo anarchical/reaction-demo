@@ -1,51 +1,76 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-
-console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}!`)
-</script>
-
 <template>
-  <div>
-    <a href="https://www.electronjs.org/" target="_blank">
-      <img src="./assets/electron.svg" class="logo electron" alt="Electron logo" />
-    </a>
-    <a href="https://vitejs.dev/" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Electron + Vite + Vue" />
-  <div class="flex-center">
-    Place static files into the <code>/public</code> folder
-    <img style="width:5em;" src="/node.svg" alt="Node logo">
-  </div>
+  <ConfigView ref="configViewRef" @getConfig="getConfig" @begin="begin"/>
+  <GraphView ref="graphRef"
+             :color="color"
+             :size="size"
+             :interval="interval"
+             :times="times"
+             :startTime="startTime"
+             v-if="showGraph"
+             @loadData="loadData"/>
+  <ResultView v-if="showResult"
+              :data="resultData"
+              :size="size"
+              :startTime="startTime"
+              :endTime="endTime"
+              :interval="interval"
+              :times="times"
+              :name="name"
+              @initConfig="initConfig"/>
 </template>
 
-<style>
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+<script setup lang="ts">
+import GraphView from "./components/GraphView.vue";
+import ConfigView from "./components/ConfigView.vue";
+import {ref} from "vue";
+import ResultView from "./components/ResultView.vue";
+
+
+const color = ref()
+const interval = ref()
+const times = ref()
+const size = ref()
+const name = ref()
+
+
+function getConfig(config: any) {
+  color.value = config.color;
+  size.value = config.size;
+  interval.value = config.interval;
+  times.value = config.times
+  name.value = config.name
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+const showGraph = ref(false);
+
+const graphRef = ref(null)
+const showResult = ref(false);
+const configViewRef = ref(null)
+const startTime = ref(new Date().getTime());
+const endTime = ref(new Date().getTime());
+
+function begin() {
+  showGraph.value = true;
+  startTime.value = new Date().getTime();
 }
 
-.logo.electron:hover {
-  filter: drop-shadow(0 0 2em #9FEAF9);
+const resultData = ref([]);
+
+function loadData(data: any) {
+  showGraph.value = false
+  showResult.value = true
+  resultData.value = data
+  endTime.value = new Date().getTime();
+
 }
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+function initConfig() {
+  showResult.value = false
+  if (configViewRef.value != null) {
+    (configViewRef.value as any).init()
+  }
+
 }
 
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+</script>
+

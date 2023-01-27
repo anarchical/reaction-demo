@@ -27,11 +27,16 @@ let sumTimes = 0
 let clicks = ref(0)
 const min = ref()
 const max = ref()
-
+const sd = ref()
+const averRespTime = ref()
+const totalRespTime = ref()
 const data = {
   'clicks': clicks,
   'min': min,
   'max': max,
+  'sd': sd,
+  'averRespTime': averRespTime,
+  'totalRespTime': totalRespTime,
 }
 const emit = defineEmits(['loadData'])
 
@@ -39,15 +44,17 @@ const x = ref(getRandom(0, width - props.size) + 'px')
 const y = ref(getRandom(0, height - props.size) + 'px')
 
 let lastClickTime = new Date().getTime();
+let temp: number[] = [];
 
 const clickGraph = () => {
   if (sumTimes == 0) {
     min.value = new Date().getTime() - props.startTime;
     max.value = new Date().getTime() - props.startTime;
+    temp.push(new Date().getTime() - props.startTime)
   } else {
     getMin(new Date().getTime() - lastClickTime);
     getMax(new Date().getTime() - lastClickTime);
-
+    temp.push(new Date().getTime() - lastClickTime)
   }
   refreshPosition()
   display.value = false;
@@ -61,8 +68,40 @@ const clickGraph = () => {
     clearTimeout(timer)
     sumTimes = 0
     data.clicks.value += 1
-    emit('loadData', data)
+    calculate()
+    emit('loadData', data);
+    temp = [];
   }
+}
+
+function calculate() {
+  console.log("反应时间列表：" + temp)
+  totalRespTime.value = 0
+  temp.forEach((value, index, array) => {
+    totalRespTime.value += value
+  })
+
+  averRespTime.value = totalRespTime.value / temp.length
+  console.log("平均反应时间：" + averRespTime.value)
+
+  let variance: number[] = []
+  temp.forEach((value, index, array) => {
+    variance.push(Math.pow((value - averRespTime.value), 2))
+  })
+  console.log("反应时间方差：" + variance)
+
+  let meanVariance: number;
+  let sumVariance: number = 0;
+  variance.forEach((value, index, array) => {
+    sumVariance += value;
+  })
+
+  meanVariance = sumVariance / variance.length
+  console.log("反应时间平均方差：" + meanVariance)
+
+  sd.value = Math.sqrt(meanVariance)
+  console.log("反应时间标准差：" + sd.value)
+
 }
 
 function clickBackground() {

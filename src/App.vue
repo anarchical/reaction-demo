@@ -50,6 +50,7 @@ const startTime = ref(new Date().getTime());
 const endTime = ref(new Date().getTime());
 
 function begin() {
+  console.log("测试人员：" + name.value)
   showGraph.value = true;
   startTime.value = new Date().getTime();
 }

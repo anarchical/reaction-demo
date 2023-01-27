@@ -18,6 +18,7 @@
       <el-table-column prop="最小反应时间（秒）" label="最小反应时间（秒）"/>
       <el-table-column prop="最大反应时间（秒）" label="最大反应时间（秒）"/>
       <el-table-column prop="平均反应时间（秒）" label="平均反应时间（秒）"/>
+      <el-table-column prop="标准差反应时间（秒）" label="标准差反应时间（秒）"/>
       <el-table-column prop="反应总时间（秒）" label="反应总时间（秒）"/>
       <el-table-column prop="测试耗时（秒）" label="测试耗时（秒）"/>
       <el-table-column prop="测试日期" label="测试日期"/>
@@ -41,7 +42,7 @@ const props = defineProps<{
   endTime: number,
   name: string
 }>()
-//
+
 const tableData = ref([{
   '图形大小': props.size,
   '测试间隔（秒）': props.interval,
@@ -50,8 +51,9 @@ const tableData = ref([{
   '正确率': ((props.times * 100 / props.data.clicks as any).toFixed(2)) + '%',
   '最小反应时间（秒）': (props.data.min / 1000).toFixed(2),
   '最大反应时间（秒）': (props.data.max / 1000).toFixed(2),
-  '平均反应时间（秒）': (((props.endTime - props.startTime) / 1000 - (props.interval * (props.times - 1))) / props.times).toFixed(2),
-  '反应总时间（秒）': ((props.endTime - props.startTime) / 1000 - (props.interval * (props.times - 1))).toFixed(2),
+  '平均反应时间（秒）': (props.data.averRespTime / 1000).toFixed(2),
+  '标准差反应时间（秒）': (props.data.sd / 1000).toFixed(2),
+  '反应总时间（秒）': (props.data.totalRespTime / 1000).toFixed(2),
   '测试耗时（秒）': ((props.endTime - props.startTime) / 1000).toFixed(2),
   '测试日期': timestampToTime(props.startTime),
   '患者姓名': props.name,
